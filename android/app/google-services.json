@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "100861769699",
+    "project_id": "audio-to-firebase",
+    "storage_bucket": "audio-to-firebase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:100861769699:android:43af2dfa4cabf2545512d6",
+        "android_client_info": {
+          "package_name": "com.example.audio_to_firebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "100861769699-buobtralkthri2e8e0t0jk2tvl5hhj86.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.audio_to_firebase",
+            "certificate_hash": "807b0fc315e9827999d82cfb9b9838abbfcb0adc"
+          }
+        },
+        {
+          "client_id": "100861769699-6816aam484usklmbsr830haap724ccvi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdgyRL4IPQeYlKPUOoZI7yCc8X5fEF9xY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "100861769699-6816aam484usklmbsr830haap724ccvi.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "100861769699-8pc62qfi40db2qnro76jmagenth8i0mk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.audioToFirebase"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
