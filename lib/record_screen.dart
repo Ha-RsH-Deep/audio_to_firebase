@@ -11,13 +11,13 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'main.dart';
 
+// The RecordPage class, a StatefulWidget representing the recording screen
 class RecordPage extends StatefulWidget {
   const RecordPage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
   @override
-  // ignore: library_private_types_in_public_api
   _RecordPageState createState() => _RecordPageState();
 }
 
@@ -63,108 +63,68 @@ class _RecordPageState extends State<RecordPage> {
     );
   }
 
-void _prepare() async {
+  // Prepare the recording environment by requesting microphone permission and opening the recorder
+  void _prepare() async {
     await requestMicrophonePermission();
     await _recorder.openRecorder();
-}
+  }
 
-Future<void> requestMicrophonePermission() async {
+  // Request microphone permission using the permission_handler package
+  Future<void> requestMicrophonePermission() async {
     var status = await Permission.microphone.request();
     if (status != PermissionStatus.granted) {
-        throw RecordingPermissionException('Microphone permission not granted');
+      throw RecordingPermissionException('Microphone permission not granted');
     }
-}
+  }
 
-void _startRecording() async {
+  // Start the recording process
+  void _startRecording() async {
     final tempDir = await getTemporaryDirectory();
     _filePath = '${tempDir.path}/audio.aac';
     debugPrint("File path: $_filePath");
     await _recorder.startRecorder(toFile: _filePath, codec: Codec.aacADTS);
     setState(() => _isRecording = true);
-}
+  }
 
+  // Stop the recording process and handle the uploaded file
+  void _stopRecording() async {
+    await _recorder.stopRecorder();
+    setState(() => _isRecording = false);
+    final file = File(_filePath);
+    final storageReference =
+        FirebaseStorage.instance.ref().child("audio-to-firebase/${DateTime.now()}.aac");
 
-// void _stopRecording() async {
-//   await _recorder.stopRecorder();
-//   setState(() => _isRecording = false);
-//   final file = File(_filePath);
-//   final storageReference =
-//       FirebaseStorage.instance.ref().child("audio-to-firebase/${DateTime.now()}.aac");
+    try {
+      // Upload the file to Firebase Storage and wait for the completion of the upload task
+      await storageReference.putFile(file);
 
-//   try {
-//     // Upload the file and wait for the completion of the upload task
-//     await storageReference.putFile(file);
+      // After the upload is complete, get the download URL of the uploaded file
+      final url = await storageReference.getDownloadURL();
+      developer.log('URL is $url');
 
-//     // After the upload is complete, get the download URL
-//     final url = await storageReference.getDownloadURL();
-//     developer.log('URL is $url');
-
-//     // Store user data and file link in Firestore
-//     final currentUser = FirebaseAuth.instance.currentUser;
-//     if (currentUser != null) {
-//       final userRef = FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
-//       final fileInfo = {
-//         'email': currentUser.email, // Store the user's email
-//         'fileLink': url,
-//         'timestamp': DateTime.now(),
-//         // Add any other metadata you want to store, like file name, duration, etc.
-//       };
-//       // Set the user data and file link in the Firestore document
-//       await userRef.set(fileInfo, SetOptions(merge: true));
-//     }
-//   } catch (e) {
-//     // Handle any errors that may occur during the upload or getting the URL
-//     log.warning('Error uploading or getting URL: $e');
-//   }
-
-//   if (await file.exists()) {
-//     // Proceed with file upload
-//     // ... Your existing code for file upload ...
-//   } else {
-//     debugPrint("File not found: $_filePath");
-//   }
-// }
-
-void _stopRecording() async {
-  await _recorder.stopRecorder();
-  setState(() => _isRecording = false);
-  final file = File(_filePath);
-  final storageReference =
-      FirebaseStorage.instance.ref().child("audio-to-firebase/${DateTime.now()}.aac");
-
-  try {
-    // Upload the file and wait for the completion of the upload task
-    await storageReference.putFile(file);
-
-    // After the upload is complete, get the download URL
-    final url = await storageReference.getDownloadURL();
-    developer.log('URL is $url');
-
-    // Store user data and file link in a new Firestore document
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      final userRef = FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
-      final recordingData = {
-        'email': currentUser.email,
-        'fileLink': url,
-        'timestamp': DateTime.now(),
-        // Add any other metadata you want to store, like file name, duration, etc.
-      };
-      // Add a new document with the recordingData under the 'recordings' collection
-      await userRef.collection('recordings').add(recordingData);
+      // Store user data and file link in a new Firestore document
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        final userRef = FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
+        final recordingData = {
+          'email': currentUser.email,
+          'fileLink': url,
+          'timestamp': DateTime.now(),
+          // Add any other metadata you want to store, like file name, duration, etc.
+        };
+        // Add a new document with the recordingData under the 'recordings' collection in Firestore
+        await userRef.collection('recordings').add(recordingData);
+      }
+    } catch (e) {
+      // Handle any errors that may occur during the upload or getting the URL
+      log.warning('Error uploading or getting URL: $e');
     }
-  } catch (e) {
-    // Handle any errors that may occur during the upload or getting the URL
-    log.warning('Error uploading or getting URL: $e');
+
+    if (await file.exists()) {
+      // Proceed with file upload (additional code for file upload can be added here)
+      // ... Your existing code for file upload ...
+    } else {
+      debugPrint("File not found: $_filePath");
+    }
   }
-
-  if (await file.exists()) {
-    // Proceed with file upload
-    // ... Your existing code for file upload ...
-  } else {
-    debugPrint("File not found: $_filePath");
-  }
-}
-
-
 }

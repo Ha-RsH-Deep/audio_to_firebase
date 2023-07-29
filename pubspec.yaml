@@ -25,6 +25,9 @@ dependencies:
   cupertino_icons: ^1.0.2
   logging: ^1.2.0
   cloud_firestore: ^4.8.3
+  googleapis: ^11.3.0
+  googleapis_auth: ^1.4.1
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:
